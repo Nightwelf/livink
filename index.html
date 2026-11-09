@@ -1,0 +1,415 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Оживилка — детский рисунок оживает на экране</title>
+<meta name="description" content="Оживилка (Livink) — приложение для Android: сфотографируйте детский рисунок, и персонаж оживёт — машет, прыгает, танцует. Всё на телефоне, без интернета.">
+<meta name="theme-color" content="#d84315">
+<meta property="og:type" content="website">
+<meta property="og:locale" content="ru_RU">
+<meta property="og:title" content="Оживилка — детский рисунок оживает на экране">
+<meta property="og:description" content="Сфотографируйте человечка с листа — он замашет рукой, запрыгает и затанцует. Полностью офлайн: рисунки никуда не отправляются.">
+<meta name="twitter:card" content="summary">
+<link rel="icon" href="assets/icon.svg" type="image/svg+xml">
+<link rel="preload" href="assets/fonts/manrope-cyrillic.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="style.css">
+<script>document.documentElement.classList.add('js')</script>
+<script src="script.js" defer></script>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <filter id="wobble">
+    <feTurbulence type="fractalNoise" baseFrequency=".04" numOctaves="2" seed="1">
+      <animate attributeName="seed" values="1;2;3;4" dur=".5s" calcMode="discrete" repeatCount="indefinite"/>
+    </feTurbulence>
+    <feDisplacementMap in="SourceGraphic" scale="3"/>
+  </filter>
+  <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M10 10h4v4h-4zM9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M3 8a2 2 0 0 1 2-2h2.5L9 4h6l1.5 2H19a2 2 0 0 1 2 2v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.6 7.6 20 18M8.6 16.4 20 6"/></symbol>
+  <symbol id="i-brush" viewBox="0 0 24 24"><path d="M20 4 10 14M7.5 14.5a3 3 0 0 0-3 3c0 1.5-1 2.5-2 2.5 1 1 2.5 1.5 4 1.5a4 4 0 0 0 4-4 3 3 0 0 0-3-3z"/></symbol>
+  <symbol id="i-pen" viewBox="0 0 24 24"><path d="m4 20 1-4L16 5l3 3L8 19z"/><path d="m14 7 3 3"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5"/><path d="M4 9h11a5 5 0 0 1 0 10h-3"/></symbol>
+  <symbol id="i-tap" viewBox="0 0 24 24"><path d="M9 13V5.5a1.5 1.5 0 0 1 3 0V11M12 10.5V9a1.5 1.5 0 0 1 3 0v2M15 10.5a1.5 1.5 0 0 1 3 0V15a6 6 0 0 1-6 6h-1a6 6 0 0 1-4.8-2.4L3.6 15.2a1.5 1.5 0 0 1 2.3-1.9L9 16"/></symbol>
+  <symbol id="i-person" viewBox="0 0 24 24"><circle cx="12" cy="4.5" r="2.2"/><path d="M12 7.5v7M12 14.5l-3.5 6M12 14.5l3.5 6M6 9.5l6-1.2 6 1.2"/></symbol>
+  <symbol id="i-image" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="9" cy="9.5" r="1.8"/><path d="m3 17 5-5 4 4 3-3 6 6"/></symbol>
+  <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M7 5v14M17 5v14M3 9.5h4M3 14.5h4M17 9.5h4M17 14.5h4"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="3" width="7.5" height="7.5" rx="2"/><rect x="3" y="13.5" width="7.5" height="7.5" rx="2"/><rect x="13.5" y="13.5" width="7.5" height="7.5" rx="2"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 5 5 9-10"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3"/><path d="M11 18h2"/></symbol>
+  <symbol id="i-cloud-off" viewBox="0 0 24 24"><path d="m3 3 18 18"/><path d="M8.5 6.3A6 6 0 0 1 17.6 10 4 4 0 0 1 20.6 16.4M17 18H7a5 5 0 0 1-1.6-9.7"/></symbol>
+  <symbol id="i-eye-off" viewBox="0 0 24 24"><path d="m3 3 18 18"/><path d="M10.6 5.1Q11.3 5 12 5c6 0 10 7 10 7a17 17 0 0 1-3.2 3.9M6.6 6.6C3.9 8.4 2 12 2 12s4 7 10 7a9.7 9.7 0 0 0 5.4-1.6"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M19 12H5M11 6l-6 6 6 6"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></symbol>
+  <symbol id="i-rec" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3.5" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-plane" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5a1.5 1.5 0 0 0-3 0V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-battery" viewBox="0 0 24 24"><rect x="3" y="7" width="16" height="10" rx="2.5"/><rect x="5.5" y="9.5" width="9" height="5" rx="1" fill="currentColor" stroke="none"/><path d="M21.5 10.5v3"/></symbol>
+</svg>
+
+<!-- Человечек: один рисунок на все сцены, script.js клонирует его в [data-puppet].
+     Движение задаёт data-anim на контейнере, позы и суставы — в style.css. -->
+<template id="puppet">
+  <svg class="puppet" viewBox="0 0 200 270" aria-hidden="true">
+    <ellipse class="pp-shadow" cx="100" cy="256" rx="48" ry="7"/>
+    <g class="pp-root">
+      <g class="pp-torso">
+        <path class="pp-shirt pp-body" d="M79 98Q100 91 121 98L138 183Q100 193 62 183Z"/>
+        <path class="pp-body pp-dots" d="M100 122v.1M100 142v.1M100 162v.1"/>
+        <path class="pp-bone" d="M100 96V186M77 106H123M86 186H114"/>
+        <circle class="pp-joint" cx="100" cy="96" r="5"/>
+        <circle class="pp-joint" cx="100" cy="186" r="5"/>
+      </g>
+      <g class="pp-leg pp-leg-l">
+        <path d="M86 186 80 218 68 248l-13 3"/>
+        <circle class="pp-joint" cx="86" cy="186" r="5"/><circle class="pp-joint" cx="80" cy="218" r="5"/><circle class="pp-joint" cx="68" cy="248" r="5"/>
+      </g>
+      <g class="pp-leg pp-leg-r">
+        <path d="M114 186 120 218 132 248l13 3"/>
+        <circle class="pp-joint" cx="114" cy="186" r="5"/><circle class="pp-joint" cx="120" cy="218" r="5"/><circle class="pp-joint" cx="132" cy="248" r="5"/>
+      </g>
+      <g class="pp-arm pp-arm-l">
+        <path d="M77 106 52 138"/>
+        <circle class="pp-joint" cx="77" cy="106" r="5"/><circle class="pp-joint" cx="52" cy="138" r="5"/>
+        <g class="pp-fore"><path d="M52 138 42 164"/><circle class="pp-skin pp-hand" cx="40" cy="171" r="7"/><circle class="pp-joint" cx="40" cy="171" r="5"/></g>
+      </g>
+      <g class="pp-arm pp-arm-r">
+        <path d="M123 106 148 138"/>
+        <circle class="pp-joint" cx="123" cy="106" r="5"/><circle class="pp-joint" cx="148" cy="138" r="5"/>
+        <g class="pp-fore"><path d="M148 138 158 164"/><circle class="pp-skin pp-hand" cx="160" cy="171" r="7"/><circle class="pp-joint" cx="160" cy="171" r="5"/></g>
+      </g>
+      <g class="pp-head">
+        <path class="pp-hair" d="M80 40 70 26M92 32l-4-16M106 30l4-16M120 38l10-12"/>
+        <circle class="pp-skin" cx="100" cy="58" r="34"/>
+        <circle class="pp-eye" cx="88" cy="54" r="4.5"/><circle class="pp-eye" cx="113" cy="53" r="4.5"/>
+        <circle class="pp-cheek" cx="80" cy="66" r="6"/><circle class="pp-cheek" cx="121" cy="65" r="6"/>
+        <path class="pp-mouth" d="M88 70q12 11 25-1"/>
+        <circle class="pp-joint" cx="100" cy="58" r="5"/>
+      </g>
+    </g>
+  </svg>
+</template>
+
+<header class="hero">
+  <div class="hero-doodles" aria-hidden="true">
+    <svg viewBox="0 0 1200 640" preserveAspectRatio="xMidYMid slice">
+      <path d="M90 70l14 30 32 4-24 22 6 32-28-16-28 16 6-32-24-22 32-4z"/>
+      <path d="M1100 110c0-20 30-20 30 0s-50 30-50 0 60-50 70 0-40 70-80 40"/>
+      <path d="M980 520c-20-30 10-50 30-30 20-20 50 0 30 30l-30 30z"/>
+      <path d="M140 540q30-30 60 0t60 0 60 0 60 0"/>
+      <path d="M560 40c40 10 60-10 90 0"/>
+      <path d="M760 600l20-40 20 40 20-40 20 40"/>
+    </svg>
+  </div>
+
+  <nav class="nav container">
+    <a class="logo" href="index.html"><img src="assets/icon.svg" alt="" width="36" height="36">Оживилка</a>
+    <div class="nav-links">
+      <a href="#moves">Анимации</a>
+      <a href="#features">Возможности</a>
+      <a href="#how">Как это работает</a>
+      <a href="#privacy">Приватность</a>
+    </div>
+  </nav>
+
+  <div class="hero-grid container">
+    <div class="hero-text reveal">
+      <span class="chip"><svg class="i"><use href="#i-plane"/></svg>Работает без интернета</span>
+      <h1>Оживилка</h1>
+      <p class="lead">Детский рисунок оживает на&nbsp;экране. Машет, прыгает и&nbsp;танцует.</p>
+      <p class="sub">Сфотографируйте человечка с&nbsp;листа&nbsp;— Оживилка вырежет его, поставит скелет и&nbsp;запустит анимацию. Всё прямо на&nbsp;телефоне: рисунки ребёнка никуда не&nbsp;отправляются.</p>
+      <div class="actions">
+        <span class="btn btn-light btn-soon"><svg class="i"><use href="#i-play"/></svg>Скоро в Google Play и RuStore</span>
+        <a class="btn btn-ghost" href="#how">Как это работает<svg class="i"><use href="#i-arrow"/></svg></a>
+      </div>
+      <p class="meta">Android · бесплатно · без рекламы</p>
+    </div>
+
+    <div class="phone-wrap reveal" style="--d:2">
+      <div class="phone">
+        <div class="screen">
+          <div class="p-status"><span>9:41</span><span><svg class="i"><use href="#i-plane"/></svg><svg class="i"><use href="#i-battery"/></svg></span></div>
+          <div class="p-bar">
+            <svg class="i"><use href="#i-back"/></svg>
+            <div><b>Человечек Маши</b><small>Сцена · Луг</small></div>
+          </div>
+          <div class="p-scene" role="img" aria-label="Нарисованный ребёнком человечек двигается на фоне луга">
+            <svg class="bg" viewBox="0 0 280 380" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+              <g stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M236 18v-10M236 74v10M208 46h-10M264 46h10M216 26l-7-7M256 66l7 7M256 26l7-7M216 66l-7 7" stroke="#f9a825"/>
+                <circle cx="236" cy="46" r="20" fill="#ffd54f" stroke="#f9a825"/>
+                <path d="M30 74a16 16 0 0 1 28-14 18 18 0 0 1 32 6 12 12 0 0 1 2 24H34a12 12 0 0 1-4-16z" fill="#fff" stroke="#90caf9"/>
+                <path d="M0 300q35-18 70-4t70-2 70 4 70-6V380H0z" fill="#c5e1a5" stroke="#8bc34a"/>
+                <path d="M34 350v-22M244 356v-22" stroke="#7cb342"/>
+                <circle cx="34" cy="322" r="7" fill="#f48fb1" stroke="#ec407a"/>
+                <circle cx="244" cy="328" r="7" fill="#fff59d" stroke="#fbc02d"/>
+              </g>
+            </svg>
+            <div class="p-stage" data-puppet data-anim="idle"></div>
+          </div>
+          <div class="p-anims">
+            <button type="button" data-anim="idle">Дышит</button>
+            <button type="button" data-anim="wave">Машет</button>
+            <button type="button" data-anim="jump">Прыжок</button>
+            <button type="button" data-anim="walk">Ходьба</button>
+            <button type="button" data-anim="dance">Танец</button>
+          </div>
+          <div class="p-actions" aria-hidden="true">
+            <span class="p-rec"><svg class="i"><use href="#i-rec"/></svg>Записать своё движение</span>
+            <span class="p-share"><svg class="i"><use href="#i-share"/></svg></span>
+          </div>
+        </div>
+      </div>
+      <div class="float float-a" aria-hidden="true"><svg class="i"><use href="#i-plane"/></svg>Без интернета</div>
+      <div class="float float-b" aria-hidden="true"><svg class="i"><use href="#i-chip"/></svg>Обработано на телефоне</div>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section class="stats container">
+  <div class="stat reveal"><b class="grad-text">0</b><span>рисунков уходит в&nbsp;сеть: у&nbsp;приложения нет даже разрешения на&nbsp;интернет</span></div>
+  <div class="stat reveal" style="--d:1"><b class="grad-text">15</b><span>суставов&nbsp;— скелет расставляется пальцем прямо на&nbsp;рисунке</span></div>
+  <div class="stat reveal" style="--d:2"><b class="grad-text">5+</b><span>анимаций из&nbsp;коробки и&nbsp;запись своих движений с&nbsp;камеры</span></div>
+</section>
+
+<section class="section container" id="moves">
+  <div class="section-head reveal">
+    <span class="eyebrow">Анимации</span>
+    <h2>Пять движений из&nbsp;коробки</h2>
+    <p>Движения сняты на&nbsp;настоящих людях в&nbsp;лаборатории захвата движений CMU и&nbsp;доведены вручную, чтобы было по-мультяшному.</p>
+  </div>
+  <div class="moves">
+    <figure class="move reveal">
+      <div class="stage" data-puppet data-anim="idle"></div>
+      <figcaption><b>Дышит</b>Стоит и&nbsp;тихонько дышит</figcaption>
+    </figure>
+    <figure class="move reveal" style="--d:1">
+      <div class="stage" data-puppet data-anim="wave"></div>
+      <figcaption><b>Машет</b>Привет-привет!</figcaption>
+    </figure>
+    <figure class="move reveal" style="--d:2">
+      <div class="stage" data-puppet data-anim="jump"></div>
+      <figcaption><b>Прыжок</b>С&nbsp;приседанием и&nbsp;отскоком</figcaption>
+    </figure>
+    <figure class="move reveal" style="--d:3">
+      <div class="stage" data-puppet data-anim="walk"></div>
+      <figcaption><b>Ходьба</b>Шагает на&nbsp;месте</figcaption>
+    </figure>
+    <figure class="move reveal" style="--d:4">
+      <div class="stage" data-puppet data-anim="dance"></div>
+      <figcaption><b>Танец</b>Руки вверх!</figcaption>
+    </figure>
+  </div>
+</section>
+
+<section class="section container" id="features">
+  <div class="section-head reveal">
+    <span class="eyebrow">Возможности</span>
+    <h2>От&nbsp;листа бумаги до&nbsp;мультика за&nbsp;минуту</h2>
+    <p>Взрослый фотографирует и&nbsp;проверяет, ребёнок смотрит, как его герой оживает.</p>
+  </div>
+
+  <div class="bento">
+    <article class="card wide reveal">
+      <div>
+        <div class="icon"><svg class="i"><use href="#i-camera"/></svg></div>
+        <h3>Снимите лист как угодно</h3>
+        <ul class="ticks">
+          <li>Камерой или из&nbsp;галереи&nbsp;— хоть под углом, хоть на&nbsp;пёстром столе.</li>
+          <li>Оживилка сама найдёт лист и&nbsp;выровняет перспективу.</li>
+          <li>Ошиблась&nbsp;— передвиньте четыре угла пальцем.</li>
+          <li>Фигура выделится автоматически, фон станет прозрачным.</li>
+        </ul>
+      </div>
+      <div class="sheet-mock" aria-hidden="true">
+        <svg viewBox="0 0 260 190">
+          <polygon class="paper" points="48,30 214,18 236,170 30,158"/>
+          <g class="doodle">
+            <circle cx="132" cy="62" r="14"/>
+            <path d="M132 76v38M132 114l-12 24M132 114l12 24M132 88l-16 12M132 88l16-14"/>
+          </g>
+          <polygon class="quad" points="48,30 214,18 236,170 30,158"/>
+          <circle class="handle" cx="48" cy="30" r="8"/><circle class="handle" cx="214" cy="18" r="8"/>
+          <circle class="handle" cx="236" cy="170" r="8"/><circle class="handle" cx="30" cy="158" r="8"/>
+        </svg>
+        <span class="pill"><svg class="i"><use href="#i-check"/></svg>Лист найден и&nbsp;выровнен</span>
+      </div>
+    </article>
+
+    <article class="card reveal" style="--d:1">
+      <div class="icon"><svg class="i"><use href="#i-brush"/></svg></div>
+      <h3>Редактор выделения</h3>
+      <p>Линия не&nbsp;замкнута, рука слиплась с&nbsp;телом, в&nbsp;контур попала тень&nbsp;— всё правится до&nbsp;анимации.</p>
+      <div class="pills">
+        <span class="pill"><svg class="i"><use href="#i-pen"/></svg>Замкнуть линию</span>
+        <span class="pill"><svg class="i"><use href="#i-brush"/></svg>Кисть</span>
+        <span class="pill"><svg class="i"><use href="#i-scissors"/></svg>Ножницы</span>
+        <span class="pill"><svg class="i"><use href="#i-undo"/></svg>Отмена</span>
+      </div>
+    </article>
+
+    <article class="card reveal">
+      <div class="icon"><svg class="i"><use href="#i-person"/></svg></div>
+      <h3>Скелет пальцем</h3>
+      <p>Шаблон из&nbsp;15&nbsp;суставов сам ложится на&nbsp;рисунок. Подвиньте точки на&nbsp;голову, локти и&nbsp;колени&nbsp;— веса для изгибов посчитаются автоматически.</p>
+    </article>
+
+    <article class="card wide reveal" style="--d:1">
+      <div>
+        <div class="icon"><svg class="i"><use href="#i-rec"/></svg></div>
+        <h3>Своё движение</h3>
+        <p>Ребёнок встаёт перед камерой и&nbsp;двигается, а&nbsp;персонаж повторяет в&nbsp;реальном времени. Запись до&nbsp;10&nbsp;секунд сохраняется как новая анимация для любого героя.</p>
+        <p class="note"><svg class="i"><use href="#i-eye-off"/></svg>Видео не&nbsp;сохраняется: остаются только углы суставов.</p>
+      </div>
+      <div class="mocap" aria-hidden="true">
+        <div class="stage cam bones" data-puppet data-anim="wave"><span class="rec"><i></i><span data-clock>0:07</span></span></div>
+        <div class="stage" data-puppet data-anim="wave"></div>
+      </div>
+    </article>
+
+    <article class="card reveal">
+      <svg class="jelly" viewBox="0 0 160 120" aria-hidden="true">
+        <g class="blob">
+          <path d="M22 112C10 70 30 22 80 20s72 46 58 92Z" fill="#ce93d8"/>
+          <circle cx="64" cy="62" r="4" fill="#2b2233"/><circle cx="96" cy="60" r="4" fill="#2b2233"/>
+          <path d="M68 82q12 9 24 0" fill="none"/>
+        </g>
+      </svg>
+      <h3>Желейный режим</h3>
+      <p>Котик, машинка или облако без рук и&nbsp;ног тоже оживут: фигура дышит, покачивается и&nbsp;пружинит.</p>
+    </article>
+
+    <article class="card reveal" style="--d:1">
+      <div class="icon"><svg class="i"><use href="#i-image"/></svg></div>
+      <h3>Любой фон</h3>
+      <p>Белый лист, луг, море, космос или город. А&nbsp;можно сфотографировать ещё один рисунок ребёнка и&nbsp;поселить героя в&nbsp;нём.</p>
+    </article>
+
+    <article class="card reveal" style="--d:2">
+      <div class="icon"><svg class="i"><use href="#i-tap"/></svg></div>
+      <h3>С&nbsp;героем можно играть</h3>
+      <p>Тапните&nbsp;— подпрыгнет. Потяните за&nbsp;руку&nbsp;— она потянется за&nbsp;пальцем. Наклоните телефон&nbsp;— будет балансировать.</p>
+    </article>
+
+    <article class="card reveal">
+      <div class="icon"><svg class="i"><use href="#i-film"/></svg></div>
+      <h3>Видео и&nbsp;GIF</h3>
+      <p>Мультик сохраняется в&nbsp;MP4 или GIF и&nbsp;отправляется бабушке в&nbsp;Telegram или WhatsApp.</p>
+    </article>
+
+    <article class="card reveal" style="--d:1">
+      <div class="icon"><svg class="i"><use href="#i-pen"/></svg></div>
+      <h3>Эффект «от&nbsp;руки»</h3>
+      <p>Линии рисунка чуть дрожат, как в&nbsp;настоящем рисованном мультфильме. Включается одной кнопкой.</p>
+    </article>
+
+    <article class="card reveal" style="--d:2">
+      <div class="icon"><svg class="i"><use href="#i-grid"/></svg></div>
+      <h3>Галерея героев</h3>
+      <p>Все персонажи сохраняются и&nbsp;тихонько дышат в&nbsp;превью. К&nbsp;любому можно вернуться и&nbsp;сменить движение.</p>
+    </article>
+  </div>
+</section>
+
+<section class="section container" id="how">
+  <div class="section-head reveal">
+    <span class="eyebrow">Как это работает</span>
+    <h2>Четыре шага от&nbsp;рисунка к&nbsp;мультику</h2>
+  </div>
+
+  <ol class="steps">
+    <li class="step reveal"><h3>Сфотографируйте</h3><p>Камерой или из&nbsp;галереи. Лист найдётся и&nbsp;выровняется сам, углы можно поправить пальцем.</p></li>
+    <li class="step reveal" style="--d:1"><h3>Проверьте выделение</h3><p>Оживилка вырежет фигуру. Если линия не&nbsp;замкнута или рука слиплась с&nbsp;телом&nbsp;— исправьте за&nbsp;пару движений.</p></li>
+    <li class="step reveal" style="--d:2"><h3>Расставьте суставы</h3><p>Шаблон скелета ложится на&nbsp;рисунок. Подвиньте точки, если голова или колени оказались не&nbsp;на&nbsp;месте.</p></li>
+    <li class="step reveal" style="--d:3"><h3>Оживите</h3><p>Выберите движение и&nbsp;фон. Герой сохранится в&nbsp;галерее, а&nbsp;мультик можно отправить видео или GIF.</p></li>
+  </ol>
+
+  <div class="card engine reveal">
+    <div>
+      <h3>Под капотом&nbsp;— для любопытных</h3>
+      <p>Компьютерное зрение, триангуляция и&nbsp;скиннинг работают прямо на&nbsp;телефоне. Геометрия считается в&nbsp;ядре на&nbsp;Rust, рисует Flutter через <code>Canvas.drawVertices</code> и&nbsp;фрагментные шейдеры&nbsp;— 60&nbsp;кадров в&nbsp;секунду на&nbsp;обычном Android.</p>
+    </div>
+    <ol class="pipe">
+      <li><span>Снимок</span></li>
+      <li><span>Лист<small>OpenCV</small></span></li>
+      <li><span>Маска</span></li>
+      <li><span>Меш<small>Делоне</small></span></li>
+      <li><span>Скелет<small>15</small></span></li>
+      <li><span>Веса</span></li>
+      <li><span>Кадр<small>60 fps</small></span></li>
+    </ol>
+  </div>
+</section>
+
+<section class="section container" id="privacy">
+  <div class="privacy reveal">
+    <div class="section-head">
+      <span class="eyebrow">Приватность</span>
+      <h2>Рисунки ребёнка не&nbsp;покидают телефон</h2>
+      <p>Оживилка не&nbsp;умеет выходить в&nbsp;интернет: ни&nbsp;серверов, ни&nbsp;облака, ни&nbsp;аккаунтов.</p>
+    </div>
+    <div class="privacy-grid">
+      <div><svg class="i"><use href="#i-phone"/></svg><p><b>Всё на&nbsp;телефоне.</b> Фото, персонажи и&nbsp;анимации хранятся только в&nbsp;памяти устройства.</p></div>
+      <div><svg class="i"><use href="#i-cloud-off"/></svg><p><b>Нет сети вообще.</b> В&nbsp;приложении нет разрешения на&nbsp;интернет, аналитики и&nbsp;рекламных SDK.</p></div>
+      <div><svg class="i"><use href="#i-camera"/></svg><p><b>Только камера.</b> Фото из&nbsp;галереи выбираются системным окном&nbsp;— без доступа ко&nbsp;всем снимкам.</p></div>
+      <div><svg class="i"><use href="#i-share"/></svg><p><b>Только по&nbsp;вашему действию.</b> Мультик покидает телефон, лишь когда вы&nbsp;сами им&nbsp;делитесь.</p></div>
+    </div>
+    <a class="link" href="privacy.html">Политика конфиденциальности<svg class="i"><use href="#i-arrow"/></svg></a>
+  </div>
+</section>
+
+<section class="section container faq" id="faq">
+  <div class="section-head reveal">
+    <span class="eyebrow">Вопросы</span>
+    <h2>Коротко о&nbsp;главном</h2>
+  </div>
+  <details class="reveal">
+    <summary>Нужен ли интернет?</summary>
+    <p>Нет, совсем. У&nbsp;приложения нет разрешения на&nbsp;доступ к&nbsp;сети: распознавание листа, выделение фигуры, скелет и&nbsp;анимация работают на&nbsp;самом телефоне. Хоть в&nbsp;самолёте, хоть на&nbsp;даче без связи.</p>
+  </details>
+  <details class="reveal">
+    <summary>А&nbsp;если рисунок не&nbsp;похож на&nbsp;человечка?</summary>
+    <p>Котик, машинка или облако оживут в&nbsp;желейном режиме: без скелета фигура дышит, покачивается и&nbsp;пружинит. Скелеты для четвероногих появятся в&nbsp;следующих версиях.</p>
+  </details>
+  <details class="reveal">
+    <summary>Ребёнок не&nbsp;замкнул линию или нарисовал руку вплотную к&nbsp;телу</summary>
+    <p>Это поправимо в&nbsp;редакторе выделения: проведите линию через разрыв&nbsp;— и&nbsp;заливка пересчитается, а&nbsp;ножницами отрежьте руку от&nbsp;тела, чтобы она двигалась отдельно.</p>
+  </details>
+  <details class="reveal">
+    <summary>На&nbsp;каких телефонах работает?</summary>
+    <p>На&nbsp;Android 8.0 и&nbsp;новее. Версия для iPhone появится позже.</p>
+  </details>
+  <details class="reveal">
+    <summary>Сколько стоит?</summary>
+    <p>Бесплатно. Без рекламы, подписок и&nbsp;встроенных покупок.</p>
+  </details>
+</section>
+
+<section class="container">
+  <div class="cta reveal">
+    <img src="assets/icon.svg" alt="" width="72" height="72">
+    <h2>Нарисуй. Сфотографируй. Оживи.</h2>
+    <p>Бесплатно для Android.</p>
+    <span class="btn btn-light btn-soon"><svg class="i"><use href="#i-play"/></svg>Скоро в Google Play и RuStore</span>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer container">
+  <a class="logo" href="index.html"><img src="assets/icon.svg" alt="" width="28" height="28">Оживилка</a>
+  <span>Livink · © 2026</span>
+  <nav>
+    <a href="privacy.html">Политика конфиденциальности</a>
+    <a href="mailto:nightwelf@gmail.com">nightwelf@gmail.com</a>
+  </nav>
+</footer>
+
+</body>
+</html>
